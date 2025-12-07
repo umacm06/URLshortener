@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple URL Shortener</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 720px;
+      padding: 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+      padding: 24px 24px 28px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .card-header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: #111827;
+    }
+
+    .card-header p {
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .row {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 1px #6366f1;
+    }
+
+    small {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    #shorten-btn {
+      width: 100%;
+      margin-top: 6px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.45);
+    }
+
+    #shorten-btn:hover {
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 6px;
+    }
+
+    .actions button {
+      flex: 1 1 140px;
+    }
+
+    #copy-btn {
+      background: #10b981;
+      color: white;
+      box-shadow: 0 6px 14px rgba(16, 185, 129, 0.45);
+    }
+
+    #copy-btn:hover {
+      background: #059669;
+    }
+
+    #stats-btn {
+      background: #f97316;
+      color: white;
+      box-shadow: 0 6px 14px rgba(249, 115, 22, 0.45);
+    }
+
+    .result {
+      margin-top: 16px;
+      padding: 14px 14px 16px;
+      border-radius: 12px;
+      background: #f3f4ff;
+      border: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+      color: #111827;
+    }
+
+    .result p {
+      margin: 4px 0;
+    }
+
+    .result a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .result a:hover {
+      text-decoration: underline;
+    }
+
+    .qr-block {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5f5;
+    }
+
+    .qr-block p {
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .qr-block img {
+      display: block;
+      margin: 0 auto;
+      max-width: 180px;
+      border-radius: 12px;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 18px 16px 22px;
+      }
+      .card-header h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="card-header">
+        <h1>URL Shortener</h1>
+        <p>Create short, trackable links with optional expiry & QR codes.</p>
+      </div>
+
+      <div class="row">
+        <label>Long URL</label>
+        <input id="url-input" type="url" placeholder="https://example.com" required />
+      </div>
+
+      <div class="row">
+        <label>Custom alias (optional)</label>
+        <input id="alias-input" type="text" placeholder="my-custom-code" />
+        <small>Result: <span id="base-url"></span>/<b>my-custom-code</b></small>
+      </div>
+
+      <div class="row">
+        <label>Expiry (days, optional)</label>
+        <input id="expiry-input" type="number" min="1" placeholder="e.g. 7" />
+      </div>
+
+      <button id="shorten-btn">Shorten URL</button>
+
+      <div id="result" class="result" style="display:none;"></div>
+
+      <div class="footer-note">
+        Tip: Leave "Custom alias" and "Expiry" empty if you just want a basic short link.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const baseURL = window.location.origin;
+    document.getElementById("base-url").textContent = baseURL;
+
+    document.getElementById("shorten-btn").addEventListener("click", async () => {
+      const url = document.getElementById("url-input").value;
+      const alias = document.getElementById("alias-input").value;
+      const expiryStr = document.getElementById("expiry-input").value;
+
+      const payload = { url: url };
+      if (alias.trim()) payload.custom_alias = alias.trim();
+      if (expiryStr.trim()) payload.expires_in_days = parseInt(expiryStr.trim(), 10);
+
+      const resDiv = document.getElementById("result");
+      resDiv.style.display = "block";
+      resDiv.textContent = "Creating short URL...";
+
+      try {
+        const resp = await fetch(baseURL + "/api/shorten", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          resDiv.textContent = "Error: " + (err.detail || "Unknown error");
+          return;
+        }
+
+        const data = await resp.json();
+        const shortUrl = `${baseURL}/${data.short_code}`;
+        const qrUrl = `${baseURL}/api/qr/${data.short_code}`;
+
+        resDiv.innerHTML = `
+          <p><b>Short URL:</b> <a href="${shortUrl}" target="_blank">${shortUrl}</a></p>
+          <p><b>Original URL:</b> ${data.original_url}</p>
+          <p><b>Clicks:</b> ${data.click_count}</p>
+          <p><b>Expires at:</b> ${data.expires_at || "Never"}</p>
+
+          <div class="actions">
+            <button id="copy-btn">Copy</button>
+            <button id="stats-btn">View Stats</button>
+          </div>
+
+          <div id="stats-container"></div>
+
+          <div class="qr-block">
+            <p>QR Code:</p>
+            <img src="${qrUrl}" alt="QR Code">
+          </div>
+        `;
+
+        // Copy button
+        const copyBtn = document.getElementById("copy-btn");
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(shortUrl);
+          alert("Short URL copied to clipboard!");
+        };
+
+        // Stats button
+        const statsBtn = document.getElementById("stats-btn");
+        statsBtn.onclick = async () => {
+          const statsResp = await fetch(baseURL + "/api/stats/" + data.short_code);
+          const stats = await statsResp.json();
+          const statsContainer = document.getElementById("stats-container");
+          statsContainer.innerHTML = `
+            <p><b>Live Stats</b></p>
+            <p>Clicks: ${stats.click_count}</p>
+            <p>Created at: ${stats.created_at}</p>
+            <p>Expires at: ${stats.expires_at || "Never"}</p>
+          `;
+        };
+
+      } catch (err) {
+        resDiv.textContent = "Network error: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
